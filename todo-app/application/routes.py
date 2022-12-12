@@ -18,7 +18,27 @@ def add_user():
     user = Users(forename = forename, surname = surname)
     db.session.add(user)
     db.session.commit()
-    return "added user"
+    return redirect(url_for('view_users'))
+
+@app.route("/view-users")
+def view_users():
+    users = Users.query.all()
+    return '<br>'.join(map(lambda u: f"{u.user_id}: {u.forename} {u.surname}", users))
+
+@app.route("/update-user/<int:id>")
+def update_user(id):
+    user = Users.query.get(id)
+    user.forename = request.args.get("forename", user.forename)
+    user.surname = request.args.get("surname", user.surname)
+    db.session.commit()
+    return redirect(url_for('view_users'))
+
+@app.route("/delete-user/<int:id>")
+def delete_user(id):
+    user = Users.query.get(id)
+    db.session.delete(user)
+    db.session.commit()
+    return redirect(url_for('view_users'))
 
 @app.route("/add")
 def add_todo():
@@ -34,7 +54,7 @@ def add_todo():
 
 @app.route("/view-tasks")
 def view_tasks():
-    tasks = Tasks.query.order_by(Tasks.priority).all() # can user filter_by to narrow results, eg: filter_by(name="sample 2")
+    tasks = Tasks.query.order_by(Tasks.priority).all() # can user filter_by to narrow results, eg: Tasks.query.filter_by(name="sample 2").all()
     return '<br>'.join(map(str, tasks))
 
 @app.route("/task/<int:id>")
