@@ -23,7 +23,7 @@ def add_user():
 @app.route("/view-users")
 def view_users():
     users = Users.query.all()
-    return '<br>'.join(map(lambda u: f"{u.user_id}: {u.forename} {u.surname}", users))
+    return render_template('view-users.html', users = users)
 
 @app.route("/update-user/<int:id>")
 def update_user(id):

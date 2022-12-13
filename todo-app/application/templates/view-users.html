@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+{% block body %}
+{% for user in users %}
+{{ user.user_id }}: {{ user.forename }} {{ user.surname }} <a href="{{ url_for('delete_user', id=user.user_id) }}"></a><br>
+<ul>
+{% for task in user.tasks %}
+<li>{{ task.__str__() }}</li>
+{% endfor %}
+</ul>
+{% endfor %}
+{% endblock body %}
