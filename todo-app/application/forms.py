@@ -8,3 +8,8 @@ class CreateTask(FlaskForm):
     due = DateField("Due Date")
     user = SelectField("Assignee", choices=[])
     submit = SubmitField("Add Task")
+
+class CreateUser(FlaskForm):
+    forename = StringField("Forename")
+    surname = StringField("Surname")
+    submit = SubmitField("Add User")

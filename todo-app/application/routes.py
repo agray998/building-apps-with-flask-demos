@@ -1,7 +1,7 @@
 from application import app, db
 from flask import request, redirect, url_for, render_template
 from application.models import Tasks, Users
-from application.forms import CreateTask
+from application.forms import CreateTask, CreateUser
 
 @app.route("/")
 def index():
@@ -13,26 +13,36 @@ def index():
 # (u)pdate /
 # (d)elete /
 
-@app.route("/add-user")
+@app.route("/add-user", methods = ["GET", "POST"])
 def add_user():
-    forename, surname = request.args.get("forename"), request.args.get("surname")
-    user = Users(forename = forename, surname = surname)
-    db.session.add(user)
-    db.session.commit()
-    return redirect(url_for('view_users'))
+    form = CreateUser()
+    if form.validate_on_submit():
+        forename = form.forename.data
+        surname = form.surname.data
+        user = Users(forename = forename, surname = surname)
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('view_users'))
+    return render_template('add-user.html', form=form, heading = "Add User")
 
 @app.route("/view-users")
 def view_users():
     users = Users.query.all()
     return render_template('view-users.html', users = users)
 
-@app.route("/update-user/<int:id>")
+@app.route("/update-user/<int:id>", methods = ["GET", "POST"])
 def update_user(id):
     user = Users.query.get(id)
-    user.forename = request.args.get("forename", user.forename)
-    user.surname = request.args.get("surname", user.surname)
-    db.session.commit()
-    return redirect(url_for('view_users'))
+    form = CreateUser()
+    form.submit.label.text = "Update User"
+    if form.validate_on_submit():
+        user.forename = form.forename.data
+        user.surname = form.surname.data
+        db.session.commit()
+        return redirect(url_for('view_users'))
+    form.forename.data = user.forename
+    form.surname.data = user.surname
+    return render_template('add-user.html', form=form, heading="Update User")
 
 @app.route("/delete-user/<int:id>")
 def delete_user(id):
