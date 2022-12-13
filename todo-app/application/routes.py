@@ -1,10 +1,10 @@
 from application import app, db
-from flask import request, redirect, url_for
+from flask import request, redirect, url_for, render_template
 from application.models import Tasks, Users
 
 @app.route("/")
 def index():
-    return "Todo List!"
+    return render_template('index.html')
 
 # DB operations
 # (c)reate /
@@ -55,7 +55,7 @@ def add_todo():
 @app.route("/view-tasks")
 def view_tasks():
     tasks = Tasks.query.order_by(Tasks.priority).all() # can user filter_by to narrow results, eg: Tasks.query.filter_by(name="sample 2").all()
-    return '<br>'.join(map(str, tasks))
+    return render_template('view-tasks.html', tasks=tasks)
 
 @app.route("/task/<int:id>")
 def get_task(id):

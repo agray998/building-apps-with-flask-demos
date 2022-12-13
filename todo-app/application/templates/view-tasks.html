@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+{% block body %}
+    <h1>Tasks</h1>
+    {% if not tasks %}
+    <p>No tasks to complete</p>
+    {% endif %}
+    <ul>
+    {% for task in tasks %}
+    <li>{{ task.__str__() }} <a href="{{ url_for('delete_task', id=task.task_id) }}">delete</a></li>
+    {% endfor %}
+    </ul>
+{% endblock body %}
