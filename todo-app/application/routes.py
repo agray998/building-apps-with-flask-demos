@@ -1,6 +1,7 @@
 from application import app, db
 from flask import request, redirect, url_for, render_template
 from application.models import Tasks, Users
+from application.forms import CreateTask
 
 @app.route("/")
 def index():
@@ -40,17 +41,21 @@ def delete_user(id):
     db.session.commit()
     return redirect(url_for('view_users'))
 
-@app.route("/add")
+@app.route("/add", methods=["GET", "POST"])
 def add_todo():
-    user = int(request.args.get("user"))
-    name = request.args.get("name")
-    desc = request.args.get("desc")
-    priority = int(request.args.get("priority"))
-    due = request.args.get("due")
-    task = Tasks(name=name, description=desc, priority=priority, due=due, user = user)
-    db.session.add(task)
-    db.session.commit()
-    return f"Added {str(task)}"
+    form = CreateTask()
+    form.user.choices = [(user.user_id, f"{user.forename} {user.surname}") for user in Users.query.all()]
+    if form.validate_on_submit():
+        user = form.user.data
+        name = form.name.data
+        desc = form.desc.data
+        priority = form.priority.data
+        due = form.due.data
+        task = Tasks(name=name, description=desc, priority=priority, due=due, user = user)
+        db.session.add(task)
+        db.session.commit()
+        return redirect(url_for('view_tasks'))
+    return render_template('add-task.html', form = form, heading="Add Task")
 
 @app.route("/view-tasks")
 def view_tasks():
@@ -61,16 +66,27 @@ def view_tasks():
 def get_task(id):
     return str(Tasks.query.get(id))
 
-@app.route("/update/<int:id>")
+@app.route("/update/<int:id>", methods = ["GET", "POST"])
 def update_task(id):
     task = Tasks.query.get(id)
-    task.name = request.args.get("name", task.name)
-    task.description = request.args.get("desc", task.description)
-    task.priority = int(request.args.get("priority", task.priority))
-    task.due = request.args.get("due", task.due)
-    task.user = int(request.args.get("user", task.user))
-    db.session.commit()
-    return redirect(url_for('view_tasks'))
+    form = CreateTask() # creating new form object
+    form.submit.label.text = "Update Task" # changing text on update button - useful when re-using forms
+    form.user.choices = [(user.user_id, f"{user.forename} {user.surname}") for user in Users.query.all()] # dynamically populating select field with data from database
+    if form.validate_on_submit(): # checking whether form has been submitted, and meets all validation requirements
+        task.name = form.name.data
+        task.description = form.desc.data
+        task.priority = form.priority.data
+        task.due = form.due.data
+        task.user = form.user.data
+        db.session.commit()
+        return redirect(url_for('view_tasks'))
+    # pre-populating the update form with existing data - convenient for end user
+    form.name.data = task.name
+    form.desc.data = task.description
+    form.priority.data = task.priority
+    form.due.data = task.due
+    form.user.data = task.user
+    return render_template('add-task.html', form=form, heading="Update Task")
 
 @app.route("/delete-task/<int:id>")
 def delete_task(id):
