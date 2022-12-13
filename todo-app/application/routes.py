@@ -65,7 +65,7 @@ def add_todo():
         db.session.add(task)
         db.session.commit()
         return redirect(url_for('view_tasks'))
-    return render_template('add-task.html', form = form, heading="Add Task")
+    return render_template('add-task.html', form = form, heading="Add Task", errors = form.errors.values())
 
 @app.route("/view-tasks")
 def view_tasks():

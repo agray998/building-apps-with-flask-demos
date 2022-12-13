@@ -12,4 +12,11 @@
         {{ form.submit }}
     </form>
 </div>
+{% if errors %}
+<ul>
+{% for error in errors %}
+<li style="color: red;">{{ error }}</li>
+{% endfor %}
+</ul>
+{% endif %}
 {% endblock body %}
