@@ -2,6 +2,7 @@ from application import app, db
 from flask import request, redirect, url_for, render_template
 from application.models import Tasks, Users
 from application.forms import CreateTask, CreateUser
+from datetime import date, timedelta
 
 @app.route("/")
 def index():
@@ -65,6 +66,7 @@ def add_todo():
         db.session.add(task)
         db.session.commit()
         return redirect(url_for('view_tasks'))
+    form.due.data = date.today() + timedelta(30)
     return render_template('add-task.html', form = form, heading="Add Task", errors = form.errors.values())
 
 @app.route("/view-tasks")

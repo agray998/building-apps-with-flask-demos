@@ -31,7 +31,7 @@ class TestBase(LiveServerTestCase):
         chrome_opts.add_argument('--headless')
         self.driver = webdriver.Chrome(executable_path="/snap/bin/chromium.chromedriver", options=chrome_opts)
 
-        self.driver.get(f'http://localhost:{self.TEST_PORT}/update-user/1')
+        self.driver.get(f'http://localhost:{self.TEST_PORT}/add')
 
     def tearDown(self):
         self.driver.quit()
@@ -41,8 +41,14 @@ class TestBase(LiveServerTestCase):
 class TestUpdateUser(TestBase):
     def test_update_user(self):
         name_field = self.driver.find_element(By.XPATH, '/html/body/div/form/input[2]')
-        name_field.clear()
-        name_field.send_keys('Robert')
-        self.driver.find_element(By.XPATH, '/html/body/div/form/input[4]').click()
+        desc_field = self.driver.find_element(By.XPATH, '/html/body/div/form/input[3]')
+        priority_field = self.driver.find_element(By.XPATH, '/html/body/div/form/input[4]')
+        user_field = self.driver.find_element(By.XPATH, '/html/body/div/form/select')
+        submit = self.driver.find_element(By.XPATH, '/html/body/div/form/input[6]')
+        name_field.send_keys('Sample 2')
+        desc_field.send_keys('blah')
+        priority_field.send_keys('2')
+        user_field.send_keys('1')
+        submit.click()
 
-        assert Users.query.get(1).forename == "Robert"
+        assert Tasks.query.get(2).name == 'Sample 2'
